@@ -29,12 +29,17 @@ const users = [
 const express = require("express")
 const exphbs = require("express-handlebars")
 const bodyParser = require("body-parser")
-const e = require("express")
+const session = require("express-session")
 
 const app = express()
 const port = 3000
 
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use(session({
+  secret: 'sndkfnofnosfpowekmprwjqlierjw',
+  resave: false,
+  saveUninitialized: false
+}))
 
 app.engine("handlebars", exphbs.engine({ defaultLayout: "main" }))
 app.set("view engine", "handlebars")
@@ -48,14 +53,18 @@ app.post("/check", (req, res) => {
   const password = req.body.password
   const usersFilter = users.filter(user => user.email === email && user.password === password)
   const error = "帳號或密碼錯誤"
-  console.log(usersFilter[0])
 
   if(usersFilter.length){
+    /*res.setHeader('Set-Cookie', "isLoggedIn=true")*/
+    req.session.isLoggedIn = true
     res.render("check", { user: usersFilter[0] })
   }else {
     res.render("index", { error })
   }
 })
+
+
+
 
 app.listen(port, () => {
   console.log(`App is running on : http://localhost:${port}`)
